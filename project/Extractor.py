@@ -23,7 +23,7 @@ class Extractor():
         self.seed = seed
 
     def get_seed(self):
-        return seld.seed
+        return self.seed
     
     def generate_seed(self, N):
         self.seed = [random.randint(0,1) for i in range(N)]
