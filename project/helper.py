@@ -10,7 +10,7 @@ def compareMeasurements(measA, measB):
     #returns the error rate
 
     N = len(measA)
-    results = [int(measA[i]==measB[i]) for i in range(N)]
+    results = [int(measA[i]!=measB[i]) for i in range(N)]
     errors = sum(results)
 
     error_rate = errors/N
