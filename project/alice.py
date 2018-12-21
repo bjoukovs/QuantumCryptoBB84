@@ -19,6 +19,7 @@ def sendClassicalMessage(sender, data):
     msg = createMessageWithSender("Alice", data)
     print("Alice sending msg: {}".format(msg))
     sender.sendClassical("Eve", msg)
+    # print("Alice: Did this work?")
     sender.sendClassical("Bob", msg)
 
 def makeQubit(alice, basis, val):
@@ -68,18 +69,19 @@ def main():
 
         #Receiving Bob basis
         bobBasis = recvClassicalVerified(Alice)
-
+        # print("Alice received Bob's basis")
         #Comparing basis
+        # print("Alice comparing bases")
         matchingBasis = helper.compareBasis(basis, bobBasis)
-
+        print("Alice: Matching basis: {}".format(matchingBasis))
 
         #Alice chooses a subset of the matching basis
         k = floor(len(matchingBasis)/2)
         sub_matchingBasis = random.sample(range(len(matchingBasis)), k)
-
+        print("Alice: Sub matching basis: {}".format(sub_matchingBasis))
         #Sending comparing qubits and outcomes
         sendClassicalMessage(Alice, sub_matchingBasis)
-        sub_matchingMeasurements = [qubitvals[ind] for ind in sub_matchingBasis]
+        sub_matchingMeasurements = [qubitvals[matchingBasis[ind]] for ind in sub_matchingBasis]
         sendClassicalMessage(Alice, sub_matchingMeasurements)
 
         #Receiving Bob's measurements

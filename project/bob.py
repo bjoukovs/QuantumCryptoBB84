@@ -50,6 +50,7 @@ def recvClassicalVerified(sender):
 def sendClassicalMessage(sender, data):
     msg = createMessageWithSender("Bob", data)
     sender.sendClassical("Eve", msg)
+    # print("Bob: Did this work?")
     sender.sendClassical("Alice", msg)
 
 def main():
@@ -57,7 +58,6 @@ def main():
     # Initialize the connection
     with CQCConnection("Bob") as Bob:
         N = recvClassicalVerified(Bob)[0]
-        print("Bob received N as {}".format(N))
         # Random basis: 0 = standard, 1=hadamard
         basis = [random.randint(0, 1) for i in range(N)]
 
@@ -75,24 +75,29 @@ def main():
             # Retreive key
             measurements.append(q.measure())
 
-        print("Bob: Sending measurements to Alice")
-        sendClassicalMessage(Bob, measurements)
 
+        # print("Bob receiving Alice's basis")
         alice_basis = recvClassicalVerified(Bob)
-        valid_bases = helper.compareBasis(alice_basis, basis)
+        matchingBasis = helper.compareBasis(alice_basis, basis)
+        print("Bob: Matching basis: {}".format(matchingBasis))
 
-        sub_matchingBasis = recvClassicalVerified(Bob)
+        print("Bob: Sending measurements to Alice")
+        sendClassicalMessage(Bob, basis)
+
+
+        sub_matchingBasis_indices = recvClassicalVerified(Bob)
 
         alice_measurements = recvClassicalVerified(Bob)
 
-        if set(sub_matchingBasis).issubset(set(valid_bases)):
+        sub_matchingBasis = [matchingBasis[ind] for ind in sub_matchingBasis_indices]
+        if set(sub_matchingBasis).issubset(set(matchingBasis)):
             sub_matchingMeasurements = [measurements[matchingIndex] for matchingIndex in sub_matchingBasis]
             sendClassicalMessage(Bob, sub_matchingMeasurements)
             error_rate = helper.compareMeasurements(sub_matchingMeasurements, alice_measurements)
 
             print("Bob calculated an error rate of {}".format(error_rate))
         else:
-            print("Bases Alice sent is not a subset of valid bases!\n Received basis: {};\nSet of valid bases:{}\n".format(sub_matchingBasis, valid_bases))
+            print("Bases Alice sent is not a subset of valid bases!\n Received basis: {};\nSet of valid bases:{}\n".format(sub_matchingBasis, matchingBasis))
 
 
 ##################################################################################################

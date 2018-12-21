@@ -1,7 +1,7 @@
 def compareBasis(basisA, basisB):
     # Returns a list of matching basis indices
 
-
+    print("Basis A: {}; Basis B: {}".format(basisA, basisB))
     indices = [i for i in range(len(basisA)) if basisA[i]==basisB[i]]
     return indices
 
@@ -22,8 +22,9 @@ def createMessageWithTag(tag, data):
         return [tag, int(data)]
     except TypeError:
         print("Sending data: {} with tag {}".format(data, tag))
-        data.insert(0, tag)
-        return data
+        out = data.copy()
+        out.insert(0, tag)
+        return out
 
 def createMessageWithSender(sender, data):
     tag = -1

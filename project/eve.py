@@ -57,5 +57,10 @@ def main():
         else:
             print("Something went wrong! Alice didn't send qubits!")
 
+        tag, msg = parseClassicalMessage(Eve.recvClassical(timout=10))
+        tag, msg = parseClassicalMessage(Eve.recvClassical(timout=10))
+        tag, msg = parseClassicalMessage(Eve.recvClassical(timout=10))
+        tag, msg = parseClassicalMessage(Eve.recvClassical(timout=10))
+        tag, msg = parseClassicalMessage(Eve.recvClassical(timout=10))
 ##################################################################################################
 main()
