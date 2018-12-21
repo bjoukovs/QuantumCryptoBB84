@@ -70,6 +70,10 @@ def main():
         bob_measurements = alice.recvClassical(timout=10)
 
 
+        #Comparing results
+        error_rate = helper.compareMeasurements(bob_measurements, [qubitvals[ind] for ind in sub_matchingBasis])
+
+
 
 
 
