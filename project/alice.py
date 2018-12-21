@@ -1,5 +1,6 @@
 from SimulaQron.cqc.pythonLib.cqc import CQCConnection, qubit
 import random
+from SimulaQron.project import helper
 
 
 def makeQubit(alice, basis, val):
@@ -51,7 +52,24 @@ def main():
         alice.sendClassical("Eve", basis, 10)
 
         #Receiving Bob basis
-        bob_basis = alice.recvClassical(timout=10)
+        bobBasis = alice.recvClassical(timout=10)
+
+        #Comparing basis
+        matchingBasis = helper.compareBasis(basis, bobBasis)
+
+
+        #Alice chooses a subset of the matching basis
+        k = floor(len(matchingBasis/2))
+        sub_matchingBasis = random.sample(range(len(matchingBasis)), k)
+
+        #Sending comparing qubits and outcomes
+        alice.sendClassical("Eve", sub_matchingBasis)
+        alice.sendClassical("Eve", [qubitvals[ind] for ind in sub_matchingBasis])
+
+        #Receiving Bob's measurements
+        bob_measurements = alice.recvClassical(timout=10)
+
+
 
 
 
