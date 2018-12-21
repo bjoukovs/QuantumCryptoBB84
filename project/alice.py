@@ -46,12 +46,12 @@ def main():
             alice.sendQubit(qubit, "Eve")
 
 
-        #Receiving Bob measurements
-        bob_basis = []
 
-        for i in range(N):
-            meas = alice.recvClassical(timout=10)
-            measurements.append(int.from_bytes(meas, byteorder='big'))
+        # Send basis to bob
+        alice.sendClassical("Eve", basis, 10)
+
+        #Receiving Bob basis
+        bob_basis = alice.recvClassical(timout=10)
 
 
 
