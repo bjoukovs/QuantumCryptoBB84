@@ -39,7 +39,6 @@ from SimulaQron.project.helper import parseClassicalMessage, messageFrom, create
 
 
 def main():
-
     # Initialize the connection
     with CQCConnection("Eve") as Eve:
 
@@ -62,5 +61,7 @@ def main():
         tag, msg = parseClassicalMessage(Eve.recvClassical(timout=10))
         tag, msg = parseClassicalMessage(Eve.recvClassical(timout=10))
         tag, msg = parseClassicalMessage(Eve.recvClassical(timout=10))
+
+
 ##################################################################################################
 main()

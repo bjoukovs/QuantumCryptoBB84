@@ -47,14 +47,15 @@ def recvClassicalVerified(sender):
     print("Bob received {}".format(msg))
     return msg
 
+
 def sendClassicalMessage(sender, data):
     msg = createMessageWithSender("Bob", data)
     sender.sendClassical("Eve", msg)
     # print("Bob: Did this work?")
     sender.sendClassical("Alice", msg)
 
-def main():
 
+def main():
     # Initialize the connection
     with CQCConnection("Bob") as Bob:
         N = recvClassicalVerified(Bob)[0]
@@ -75,7 +76,6 @@ def main():
             # Retreive key
             measurements.append(q.measure())
 
-
         # print("Bob receiving Alice's basis")
         alice_basis = recvClassicalVerified(Bob)
         matchingBasis = helper.compareBasis(alice_basis, basis)
@@ -83,7 +83,6 @@ def main():
 
         print("Bob: Sending measurements to Alice")
         sendClassicalMessage(Bob, basis)
-
 
         sub_matchingBasis_indices = recvClassicalVerified(Bob)
 
@@ -97,7 +96,9 @@ def main():
 
             print("Bob calculated an error rate of {}".format(error_rate))
         else:
-            print("Bases Alice sent is not a subset of valid bases!\n Received basis: {};\nSet of valid bases:{}\n".format(sub_matchingBasis, matchingBasis))
+            print(
+                "Bases Alice sent is not a subset of valid bases!\n Received basis: {};\nSet of valid bases:{}\n".format(
+                    sub_matchingBasis, matchingBasis))
 
 
 ##################################################################################################
