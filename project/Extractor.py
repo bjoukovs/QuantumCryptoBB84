@@ -2,19 +2,19 @@ import random
 
 class Extractor():
 
-    def __init__(seed=0)
+    def __init__(seed=None)
         self.seed = seed
 
     
-    def encode(self,message)
+    def extract(self, bits)
 
         key = None
 
-        if len(message)==len(self.seed):
-            andlist = [bool(message[i]) and bool(self.seed[i]) for i in range(len(message))]
+        if len(bits)==len(self.seed):
+            andlist = [bool(bits[i]) and bool(self.seed[i]) for i in range(len(bits))]
             key = sum(andlist)%2
         else:
-            raise("Error: seed is not the same size as the message")
+            raise("Error: seed is not the same size as the bit string")
 
         return key
 
