@@ -29,27 +29,33 @@
 
 from SimulaQron.cqc.pythonLib.cqc import CQCConnection
 
+from SimulaQron.project.helper import parseClassicalMessage, messageFrom, createMessageWithTag
+
 
 #####################################################################################################
 #
 # main
 #
+
+
 def main():
 
     # Initialize the connection
     with CQCConnection("Eve") as Eve:
 
-        info = Eve.recvClassical(timout=10)
-        N = int.from_bytes(info, byteorder='big')
+        tag, msg = parseClassicalMessage(Eve.recvClassical(timout=10))
+        if messageFrom(tag) == "Alice":
+            N = msg[0]
 
-        Eve.sendClassical("Bob", N, timout=10)
-        for i in range(0, N):
-            # Receive qubit from Alice
-            q = Eve.recvQubit()
+            # Eve.sendClassical("Bob", createMessageWithTag(tag, N))
+            for i in range(0, N):
+                # Receive qubit from Alice
+                q = Eve.recvQubit()
 
-            # Forward the qubit to Bob
-            Eve.sendQubit(q, "Bob")
-
+                # Forward the qubit to Bob
+                Eve.sendQubit(q, "Bob")
+        else:
+            print("Something went wrong! Alice didn't send qubits!")
 
 ##################################################################################################
 main()

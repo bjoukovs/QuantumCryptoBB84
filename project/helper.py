@@ -16,3 +16,32 @@ def compareMeasurements(measA, measB):
     error_rate = errors/N
 
     return error_rate
+
+def createMessageWithTag(tag, data):
+    try:
+        return [tag, int(data)]
+    except TypeError:
+        print("Sending data: {} with tag {}".format(data, tag))
+        data.insert(0, tag)
+        return data
+
+def createMessageWithSender(sender, data):
+    tag = -1
+    if sender == 'Alice':
+        tag = 0
+    elif sender == 'Bob':
+        tag = 1
+
+    return createMessageWithTag(tag, data)
+
+def parseClassicalMessage(msg):
+    message_list = list(msg)
+    return (message_list[0], message_list[1:])
+
+def messageFrom(tag):
+    if tag == 0:
+        return "Alice"
+    elif tag == 1:
+        return "Bob"
+    else:
+        return "Unknown"

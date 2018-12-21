@@ -1,33 +1,50 @@
+from math import floor
+
 from SimulaQron.cqc.pythonLib.cqc import CQCConnection, qubit
 import random
 from SimulaQron.project import helper
+from SimulaQron.project.helper import messageFrom, createMessageWithSender, parseClassicalMessage
 
+
+def recvClassicalVerified(sender):
+    tag, msg = parseClassicalMessage(sender.recvClassical(timout=10))
+
+    if messageFrom(tag) != "Bob":
+        raise ValueError("Received unexpected tag {}".format(tag))
+
+    print("Alice received {}".format(msg))
+    return msg
+
+def sendClassicalMessage(sender, data):
+    msg = createMessageWithSender("Alice", data)
+    print("Alice sending msg: {}".format(msg))
+    sender.sendClassical("Eve", msg)
+    sender.sendClassical("Bob", msg)
 
 def makeQubit(alice, basis, val):
 
-    qubit = qubit(alice)
+    q = qubit(alice)
 
     if basis==0 and val==1:
-        qubit.X()
+        q.X()
     elif basis==1 and val==0:
-        qubit.H()
+        q.H()
     elif basis==1 and val==1:
-        qubit.X()
-        qubit.H()
-    
-    return qubit
+        q.X()
+        q.H()
+
+    return q
 
 
 def main():
-    with CQCConnection("Alice") as alice:
-        
+    with CQCConnection("Alice") as Alice:
 
         #Number of bits for extractor
-        n = 10
+        n = 2
         #Number of qubits
         N = 4*n
 
-        alice.sendClassical("Eve", N, timout=10)
+        sendClassicalMessage(Alice, N)
 
         #Random basis: 0 = standard, 1=hadamard
         basis = [random.randint(0,1) for i in range(N)]
@@ -40,47 +57,38 @@ def main():
 
         for i in range(N):
 
-            qubit = makeQubit(alice, basis[i], qubitvals[i])
+            qubit = makeQubit(Alice, basis[i], qubitvals[i])
             qubits.append(qubit)
 
             #sending qubit to bob
-            alice.sendQubit(qubit, "Eve")
-
-
+            Alice.sendQubit(qubit, "Eve")
 
         # Send basis to bob
-        alice.sendClassical("Eve", basis, 10)
+        sendClassicalMessage(Alice, basis)
 
         #Receiving Bob basis
-        bobBasis = alice.recvClassical(timout=10)
+        bobBasis = recvClassicalVerified(Alice)
 
         #Comparing basis
         matchingBasis = helper.compareBasis(basis, bobBasis)
 
 
         #Alice chooses a subset of the matching basis
-        k = floor(len(matchingBasis/2))
+        k = floor(len(matchingBasis)/2)
         sub_matchingBasis = random.sample(range(len(matchingBasis)), k)
 
         #Sending comparing qubits and outcomes
-        alice.sendClassical("Eve", sub_matchingBasis)
-        alice.sendClassical("Eve", [qubitvals[ind] for ind in sub_matchingBasis])
+        sendClassicalMessage(Alice, sub_matchingBasis)
+        sub_matchingMeasurements = [qubitvals[ind] for ind in sub_matchingBasis]
+        sendClassicalMessage(Alice, sub_matchingMeasurements)
 
         #Receiving Bob's measurements
-        bob_measurements = alice.recvClassical(timout=10)
-
+        bob_measurements = recvClassicalVerified(Alice)
 
         #Comparing results
-        error_rate = helper.compareMeasurements(bob_measurements, [qubitvals[ind] for ind in sub_matchingBasis])
+        error_rate = helper.compareMeasurements(bob_measurements, sub_matchingMeasurements)
 
+        print("Alice calculated an error rate of {}".format(error_rate))
 
-
-
-
-
-
-
-
-        
 
 main()

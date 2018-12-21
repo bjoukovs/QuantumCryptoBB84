@@ -1,13 +1,12 @@
 import random
 
-class Extractor():
+class Extractor:
 
-    def __init__(seed=None)
+    def __init__(self, seed=None):
         self.seed = seed
 
     
-    def extract(self, bits)
-
+    def extract(self, bits):
         key = None
 
         if len(bits)==len(self.seed):

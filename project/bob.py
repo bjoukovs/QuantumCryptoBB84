@@ -26,32 +26,73 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+from time import sleep
 
 from SimulaQron.cqc.pythonLib.cqc import CQCConnection
-
-
+from SimulaQron.project import helper
+import random
 #####################################################################################################
 #
 # main
 #
+from SimulaQron.project.helper import parseClassicalMessage, messageFrom, createMessageWithSender
+
+
+def recvClassicalVerified(sender):
+    tag, msg = parseClassicalMessage(sender.recvClassical(timout=10))
+
+    if messageFrom(tag) != "Alice":
+        raise ValueError("Received unexpected tag {}".format(tag))
+
+    print("Bob received {}".format(msg))
+    return msg
+
+def sendClassicalMessage(sender, data):
+    msg = createMessageWithSender("Bob", data)
+    sender.sendClassical("Eve", msg)
+    sender.sendClassical("Alice", msg)
+
 def main():
 
     # Initialize the connection
     with CQCConnection("Bob") as Bob:
+        N = recvClassicalVerified(Bob)[0]
+        print("Bob received N as {}".format(N))
+        # Random basis: 0 = standard, 1=hadamard
+        basis = [random.randint(0, 1) for i in range(N)]
 
-        # Receive qubit from Alice (via Eve)
-        q = Bob.recvQubit()
+        # Qubits eigenvalues (measurement outcome)
+        measurements = []
 
-        # Retreive key
-        k = q.measure()
+        for i in range(0, N):
+            # Receive qubit from Alice (via Eve)
+            q = Bob.recvQubit()
 
-        # Receive classical encoded message from Alice
-        enc = Bob.recvClassical()[0]
+            if basis[i] == 1:
+                # Apply Hadamard to put it into standard basis for measurement
+                q.H()
 
-        # Calculate message
-        m = (enc + k) % 2
+            # Retreive key
+            measurements.append(q.measure())
 
-        print("Bob retrived the message m={} from Alice.".format(m))
+        print("Bob: Sending measurements to Alice")
+        sendClassicalMessage(Bob, measurements)
+
+        alice_basis = recvClassicalVerified(Bob)
+        valid_bases = helper.compareBasis(alice_basis, basis)
+
+        sub_matchingBasis = recvClassicalVerified(Bob)
+
+        alice_measurements = recvClassicalVerified(Bob)
+
+        if set(sub_matchingBasis).issubset(set(valid_bases)):
+            sub_matchingMeasurements = [measurements[matchingIndex] for matchingIndex in sub_matchingBasis]
+            sendClassicalMessage(Bob, sub_matchingMeasurements)
+            error_rate = helper.compareMeasurements(sub_matchingMeasurements, alice_measurements)
+
+            print("Bob calculated an error rate of {}".format(error_rate))
+        else:
+            print("Bases Alice sent is not a subset of valid bases!\n Received basis: {};\nSet of valid bases:{}\n".format(sub_matchingBasis, valid_bases))
 
 
 ##################################################################################################
