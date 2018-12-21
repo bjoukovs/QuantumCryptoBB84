@@ -39,11 +39,16 @@ def main():
     # Initialize the connection
     with CQCConnection("Eve") as Eve:
 
-        # Receive qubit from Alice
-        q = Eve.recvQubit()
+        info = Eve.recvClassical(timout=10)
+        N = int.from_bytes(info, byteorder='big')
 
-        # Forward the qubit to Bob
-        Eve.sendQubit(q, "Bob")
+        Eve.sendClassical("Bob", N, timout=10)
+        for i in range(0, N):
+            # Receive qubit from Alice
+            q = Eve.recvQubit()
+
+            # Forward the qubit to Bob
+            Eve.sendQubit(q, "Bob")
 
 
 ##################################################################################################
