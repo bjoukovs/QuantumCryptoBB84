@@ -5,7 +5,7 @@ then
         kill -9 $TEST_PIDS
 fi
 
-sh $NETSIM/run/startAll.sh -nd "Alice Bob Eve"
+sh "$NETSIM/run/startAll.sh" -nd "Alice Bob Eve"
 
 python alice.py &
 python bob.py &
