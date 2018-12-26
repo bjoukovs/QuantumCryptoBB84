@@ -41,9 +41,12 @@ def makeQubit(alice, basis, val):
 def main():
     with CQCConnection("Alice") as Alice:
         # Number of bits for extractor
-        n = 2
+        n = 10
         # Number of qubits
         N = 4 * n
+
+        #if N>32:
+        #    print("Warning: N>32 exceeds the quantum messages buffer. Qubit transmission enters acknowledgement mode to prevent this issue.")
 
         sendClassicalMessage(Alice, N)
 
@@ -61,6 +64,10 @@ def main():
 
             # sending qubit to bob
             Alice.sendQubit(qubit, "Eve")
+
+            #If N>32, waits for bob acknoledgment to avoid exceeding the qubit buffer limit of 32 at Eve's side
+            #if N>32:
+            ack = recvClassicalVerified(Alice)
 
         # Send basis to bob
         sendClassicalMessage(Alice, basis)

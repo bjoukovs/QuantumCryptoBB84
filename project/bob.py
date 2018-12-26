@@ -59,6 +59,7 @@ def main():
     # Initialize the connection
     with CQCConnection("Bob") as Bob:
         N = recvClassicalVerified(Bob)[0]
+
         # Random basis: 0 = standard, 1=hadamard
         basis = [random.randint(0, 1) for i in range(N)]
 
@@ -68,6 +69,10 @@ def main():
         for i in range(0, N):
             # Receive qubit from Alice (via Eve)
             q = Bob.recvQubit()
+
+            # N>32 acknowledgement
+            #if N>32:
+            sendClassicalMessage(Bob, 1)
 
             if basis[i] == 1:
                 # Apply Hadamard to put it into standard basis for measurement

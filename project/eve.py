@@ -31,6 +31,8 @@ from SimulaQron.cqc.pythonLib.cqc import CQCConnection
 
 from SimulaQron.project.helper import parseClassicalMessage, messageFrom, createMessageWithTag
 
+import random
+
 
 #####################################################################################################
 #
@@ -38,21 +40,46 @@ from SimulaQron.project.helper import parseClassicalMessage, messageFrom, create
 #
 
 
-def main():
+def main(intercept=False):
     # Initialize the connection
     with CQCConnection("Eve") as Eve:
+
+
+        if intercept:
+            print("Warning: Eve is measuring the qubits (random basis mode)!")
+
 
         tag, msg = parseClassicalMessage(Eve.recvClassical(timout=10))
         if messageFrom(tag) == "Alice":
             N = msg[0]
+
+            # Eavesdropping
+            if intercept:
+                meas_basis = [random.randint(0,1) for i in range(N)]
+                measurements = []
 
             # Eve.sendClassical("Bob", createMessageWithTag(tag, N))
             for i in range(0, N):
                 # Receive qubit from Alice
                 q = Eve.recvQubit()
 
+                # Eve attack: measuring the qubit
+                if intercept:
+                    if meas_basis[i]==1:
+                        q.H()                 
+                        measurements.append(q.measure(inplace=True))
+                        q.H()
+                    else:
+                        measurements.append(q.measure(inplace=True))
+
+
                 # Forward the qubit to Bob
                 Eve.sendQubit(q, "Bob")
+
+                # N>32 acknowledgement
+                #if N>32:
+                tag, msg = parseClassicalMessage(Eve.recvClassical(timout=10))
+
         else:
             print("Something went wrong! Alice didn't send qubits!")
 
@@ -64,4 +91,4 @@ def main():
 
 
 ##################################################################################################
-main()
+main(intercept=True)
