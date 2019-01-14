@@ -1,3 +1,5 @@
+from SimulaQron.cqc.pythonLib.cqc import CQCConnection
+
 def compareBasis(basisA, basisB):
     # Returns a list of matching basis indices
 

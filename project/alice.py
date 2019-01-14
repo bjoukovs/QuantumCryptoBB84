@@ -5,6 +5,7 @@ import random
 from SimulaQron.project import helper
 from SimulaQron.project.helper import messageFrom, createMessageWithSender, parseClassicalMessage
 
+from SimulaQron.project import extractor
 
 def recvClassicalVerified(sender):
     tag, msg = parseClassicalMessage(sender.recvClassical(timout=10))
@@ -27,12 +28,9 @@ def sendClassicalMessage(sender, data):
 def makeQubit(alice, basis, val):
     q = qubit(alice)
 
-    if basis == 0 and val == 1:
+    if val == 1:
         q.X()
-    elif basis == 1 and val == 0:
-        q.H()
-    elif basis == 1 and val == 1:
-        q.X()
+    if basis == 1:
         q.H()
 
     return q
@@ -47,7 +45,7 @@ def main():
 
         #if N>32:
         #    print("Warning: N>32 exceeds the quantum messages buffer. Qubit transmission enters acknowledgement mode to prevent this issue.")
-
+        Alice.name
         sendClassicalMessage(Alice, N)
 
         # Random basis: 0 = standard, 1=hadamard
@@ -73,29 +71,37 @@ def main():
         sendClassicalMessage(Alice, basis)
 
         # Receiving Bob basis
-        bobBasis = recvClassicalVerified(Alice)
+        bob_basis = recvClassicalVerified(Alice)
         # print("Alice received Bob's basis")
-        # Comparing basis
+        # Comparing basis and storing indices of the same basis
         # print("Alice comparing bases")
-        matchingBasis = helper.compareBasis(basis, bobBasis)
-        print("Alice: Matching basis: {}".format(matchingBasis))
+        matching_basis = helper.compareBasis(basis, bob_basis)
+        print("Alice: Matching basis: {}".format(matching_basis))
 
-        # Alice chooses a subset of the matching basis
-        k = floor(len(matchingBasis) / 2)
-        sub_matchingBasis = random.sample(range(len(matchingBasis)), k)
-        print("Alice: Sub matching basis: {}".format(sub_matchingBasis))
+        # Alice chooses a subset of the matching basis and stores their indices
+        k = floor(len(matching_basis) / 2)
+        sub_matching_basis = random.sample(range(len(matching_basis)), k)
+        print("Alice: Sub matching basis: {}".format(sub_matching_basis))
         # Sending comparing qubits and outcomes
-        sendClassicalMessage(Alice, sub_matchingBasis)
-        sub_matchingMeasurements = [qubitvals[matchingBasis[ind]] for ind in sub_matchingBasis]
-        sendClassicalMessage(Alice, sub_matchingMeasurements)
+        sendClassicalMessage(Alice, sub_matching_basis)
+        sub_matching_measurements = [qubitvals[matching_basis[ind]] for ind in sub_matching_basis]
+        sendClassicalMessage(Alice, sub_matching_measurements)
 
         # Receiving Bob's measurements
         bob_measurements = recvClassicalVerified(Alice)
 
         # Comparing results
-        error_rate = helper.compareMeasurements(bob_measurements, sub_matchingMeasurements)
+        error_rate = helper.compareMeasurements(bob_measurements, sub_matching_measurements)
 
         print("Alice calculated an error rate of {}".format(error_rate))
 
+        # Alice picks an extractor for one bit of key using the subset of the matching basis
+        alice_extractor = extractor.Extractor()
+        alice_extractor.generate_seed(len(sub_matching_basis))
+        key = alice_extractor.extract(sub_matching_basis)
+
+        # Send the extracted key to Bob
+        sendClassicalMessage(Alice, alice_extractor.get_seed())
+        print("Alice extracted one bit of key: {} and sent it to Bob".format(key))
 
 main()

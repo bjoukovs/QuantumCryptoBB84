@@ -30,6 +30,7 @@ from time import sleep
 
 from SimulaQron.cqc.pythonLib.cqc import CQCConnection
 from SimulaQron.project import helper
+from SimulaQron.project import extractor
 import random
 #####################################################################################################
 #
@@ -83,27 +84,37 @@ def main():
 
         # print("Bob receiving Alice's basis")
         alice_basis = recvClassicalVerified(Bob)
-        matchingBasis = helper.compareBasis(alice_basis, basis)
-        print("Bob: Matching basis: {}".format(matchingBasis))
+        matching_basis = helper.compareBasis(alice_basis, basis)
+        print("Bob: Matching basis: {}".format(matching_basis))
 
         print("Bob: Sending measurements to Alice")
         sendClassicalMessage(Bob, basis)
 
-        sub_matchingBasis_indices = recvClassicalVerified(Bob)
+        sub_matching_basis_indices = recvClassicalVerified(Bob)
 
         alice_measurements = recvClassicalVerified(Bob)
 
-        sub_matchingBasis = [matchingBasis[ind] for ind in sub_matchingBasis_indices]
-        if set(sub_matchingBasis).issubset(set(matchingBasis)):
-            sub_matchingMeasurements = [measurements[matchingIndex] for matchingIndex in sub_matchingBasis]
-            sendClassicalMessage(Bob, sub_matchingMeasurements)
-            error_rate = helper.compareMeasurements(sub_matchingMeasurements, alice_measurements)
+        sub_matching_basis = [matching_basis[ind] for ind in sub_matching_basis_indices]
+        if set(sub_matching_basis).issubset(set(matching_basis)):
+            sub_matching_measurements = [measurements[matchingIndex] for matchingIndex in sub_matching_basis]
+            sendClassicalMessage(Bob, sub_matching_measurements)
+            error_rate = helper.compareMeasurements(sub_matching_measurements, alice_measurements)
 
             print("Bob calculated an error rate of {}".format(error_rate))
+
+            alice_seed = recvClassicalVerified(Bob)
+            print("Bob received the seed {} from Alice".format(alice_seed))
+
+            # Bob uses the seed sent by Alice and an extractor to generate one bit of key as well
+            bob_extractor = extractor.Extractor()
+            bob_extractor.set_seed(alice_seed)
+            key = bob_extractor.extract(sub_matching_basis)
+
+            print("Bob generated the key {}".format(key))
         else:
             print(
                 "Bases Alice sent is not a subset of valid bases!\n Received basis: {};\nSet of valid bases:{}\n".format(
-                    sub_matchingBasis, matchingBasis))
+                    sub_matching_basis, matching_basis))
 
 
 ##################################################################################################
