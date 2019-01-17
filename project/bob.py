@@ -102,6 +102,11 @@ def main():
 
             print("Bob calculated an error rate of {}".format(error_rate))
 
+            # Since we assume a noise-free channel, error rate > 0 == Eve is present
+            if error_rate > 0:
+                print("Bob: Error rate above 0; Abort!")
+                return
+
             alice_seed = recvClassicalVerified(Bob)
             print("Bob received the seed {} from Alice".format(alice_seed))
 

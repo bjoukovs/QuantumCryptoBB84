@@ -95,6 +95,11 @@ def main():
 
         print("Alice calculated an error rate of {}".format(error_rate))
 
+        # Since we assume a noise-free channel, error rate > 0 == Eve is present
+        if error_rate > 0:
+            print("Alice: Error rate above 0; Abort!")
+            return
+
         # Alice picks an extractor for one bit of key using the subset of the matching basis
         alice_extractor = extractor.Extractor()
         alice_extractor.generate_seed(len(sub_matching_basis))
