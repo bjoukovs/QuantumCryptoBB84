@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2017, Stephanie Wehner and Axel Dahlberg
+#           (c) 2019, Andrew Jiang, Boris Joukovsky, Olivier Maas, Antal Szava
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,12 +27,12 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-from time import sleep
+
+import random
 
 from SimulaQron.cqc.pythonLib.cqc import CQCConnection
-from SimulaQron.project import helper
 from SimulaQron.project import extractor
-import random
+from SimulaQron.project import helper
 #####################################################################################################
 #
 # main
@@ -71,16 +72,15 @@ def main():
             # Receive qubit from Alice (via Eve)
             q = Bob.recvQubit()
 
-            # N>32 acknowledgement
-            #if N>32:
-            sendClassicalMessage(Bob, 1)
-
             if basis[i] == 1:
                 # Apply Hadamard to put it into standard basis for measurement
                 q.H()
 
             # Retreive key
             measurements.append(q.measure())
+
+            # Send acknowledgement to Alice
+            sendClassicalMessage(Bob, 1)
 
         # print("Bob receiving Alice's basis")
         alice_basis = recvClassicalVerified(Bob)
