@@ -1,14 +1,7 @@
+Programming a Quantum Network - CS4090 Project
 
-SimulaQron - simple quantum network simulator
-=============================================
+In this repo you will find a SimulaQron installation, along with a BB84 QKD implementation in fulfillment of the course CS4090 - Quantum Communication and Cryptography.
 
-The purpose of this simulator of quantum network nodes is to allow you to develop new applications for
-a future quantum internet, while of course right now we do not yet have real quantum network nodes available for testing. 
+The code for the project may be found in the project/ directory. To run the project, simply cd into the directory, and execute "sh run_project.sh".
 
-Importantly, SimulaQron is an application level simulator, with the sole purpose on exploring abstraction layers and how to program a quantum network. If you are interested in a simulator that can assess, for example, the performance of quantum repeaters or their placement, QuTech is developing a separate lower level simulator that can also model timing delays. This lower level simulator has a very different purpose and performs a discrete event simulation in order to determine the effect of the timing of classical communication on repeater protocols. A first version of the low level simulator will only be available in 2018.
-
-Documentation and examples are explained in the html documentation 
-https://softwarequtech.github.io/SimulaQron/html/index.html
-
-More info including a competition at
-http://www.simulaqron.org
+A report of the project may be found in the base directory (report.pdf).
