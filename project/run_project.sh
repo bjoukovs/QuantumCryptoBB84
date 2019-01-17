@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
-TEST_PIDS=$(ps aux | grep python | grep -E "Test" | awk {'print $2'})
-if [ "$TEST_PIDS" != "" ]
+PIDS=$(ps aux | grep python | grep -i "Alice\|Bob\|Eve" | awk {'print $2'})
+if [ "$PIDS" != "" ]
 then
-        kill -9 $TEST_PIDS
+        kill -9 $PIDS
 fi
 
 sh "$NETSIM/run/startAll.sh" -nd "Alice Bob Eve"
