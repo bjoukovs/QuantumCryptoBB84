@@ -100,8 +100,8 @@ def main():
         alice_extractor.generate_seed(len(sub_matching_basis))
         key = alice_extractor.extract(sub_matching_basis)
 
-        # Send the extracted key to Bob
+        # Send the extracted seed to Bob
         sendClassicalMessage(Alice, alice_extractor.get_seed())
-        print("Alice extracted one bit of key: {} and sent it to Bob".format(key))
+        print("Alice extracted one bit of key: {} and sent its seed to Bob".format(key))
 
 main()
