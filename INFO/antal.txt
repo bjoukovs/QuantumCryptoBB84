@@ -4,7 +4,7 @@ Group: TUDelft Group 10 - "The Dutch Exchange"
 Email: A.Szava@student.tudelft.nl
 Age: 24
 Occupation: Student
-School: Delft University of Technology (Exchange)
+School: Delft University of Technology
 Title: Programming a Quantum Network
 
 Abstract:
