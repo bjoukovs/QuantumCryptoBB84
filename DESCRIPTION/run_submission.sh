@@ -7,6 +7,6 @@ fi
 
 sh "$NETSIM/run/startAll.sh" -nd "Alice Bob Eve"
 
-python alice.py &
-python bob.py &
-python eve.py &
+python $NETSIM/project/alice.py &
+python $NETSIM/project/bob.py &
+python $NETSIM/project/eve.py &
